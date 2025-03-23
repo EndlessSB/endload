@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Endload</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='login_styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index_styles.css') }}">
+</head>
+<body>
+    <div class="LoginBox">
+        <h2 class="LoginTitle">Endload - Login</h2>
+        <form id="loginForm">
+            <label for="username">Email Or Username</label><br>
+            <input type="text" id="username" name="username" required><br><br>
+
+            <label for="password">Password</label><br>
+            <input type="password" id="password" name="password" required><br><br>
+
+            <button type="submit" class="LoginButton">Login</button>
+        </form>
+        <br>
+        <div id="messageBox"></div> <!-- Error/Success Message Box -->
+    </div>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+        
+            let username = document.getElementById("username").value;
+            let password = document.getElementById("password").value;
+            let messageBox = document.getElementById("messageBox");
+        
+            try {
+                let response = await fetch("/api/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password })
+                });
+        
+                let result = await response.json();
+        
+                if (response.ok) {
+                    messageBox.innerHTML = `<p style="color: green;">${result.message} Redirecting...</p>`;
+                    setTimeout(() => {
+                        window.location.href = "/dashboard";
+                    }, 1500);
+                } else {
+                    messageBox.innerHTML = `<p style="color: red;">${result.error}</p>`;
+                }
+            } catch (error) {
+                messageBox.innerHTML = `<p style="color: red;">Error processing request.</p>`;
+            }
+        });
+    </script>        
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        /* Some basic styling for layout */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        #assetList {
+            margin-top: 20px;
+        }
+        #assetList li {
+            list-style: none;
+            padding: 8px;
+            background-color: #f8f8f8;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 400px;
+            text-align: center;
+        }
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Dashboard</h1>
+        <button class="button" id="openModalBtn">Start Download</button>
+
+        <!-- List of available assets (files) -->
+        <div>
+            <h3>Available Files</h3>
+            <ul id="assetList">
+                <!-- Files will be dynamically inserted here -->
+            </ul>
+        </div>
+        
+        <!-- Download Modal -->
+        <div id="downloadModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Enter URL to Download</h2>
+                <input type="text" id="downloadUrl" placeholder="Enter file URL">
+                <button class="button" id="startDownload">Download</button>
+            </div>
+        </div>
+    </div>
+
+    
+    <script>
+            // Fetch the list of files from the server
+    fetch('/api/files')
+        .then(response => response.json())
+        .then(data => {
+            const assetList = document.getElementById('assetList');
+            data.files.forEach(file => {
+                const li = document.createElement('li');
+                li.innerHTML = `<a href="/api/download/from_server?filename=${file}" class="button" >Download ${file}</a>`;
+                assetList.appendChild(li);
+            });
+        })
+        .catch(error => console.error('Error fetching files:', error));
+
+    // Modal toggle
+    const modal = document.getElementById("downloadModal");
+    const openModalBtn = document.getElementById("openModalBtn");
+    const closeModal = document.querySelector(".close");
+    const startDownloadBtn = document.getElementById("startDownload");
+    const downloadUrlInput = document.getElementById("downloadUrl");
+
+    openModalBtn.onclick = () => modal.style.display = "flex";
+    closeModal.onclick = () => modal.style.display = "none";
+
+    // Handle starting download
+    startDownloadBtn.onclick = () => {
+        const url = downloadUrlInput.value.trim();
+        if (!url) {
+            alert("Please enter a URL.");
+            return;
+        }
+
+        fetch('/api/downloads/start-download', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ url }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.success || data.error);
+            modal.style.display = "none"; // Hide modal after action
+        })
+        .catch(error => console.error('Error starting download:', error));
+    };
+
+    </script>
+</body>
+</html>
