@@ -22,6 +22,6 @@
 
 ## Images
 
-![Dashboard](https://imgur.com/a/3r1g0N3)
+![Dashboard](https://i.imgur.com/h9ymYNR.png)
 
-![Login](https://imgur.com/nBPXQTq)
+![Login](https://i.imgur.com/nBPXQTq.png)
